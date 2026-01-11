@@ -34,7 +34,7 @@ class SheerIDVerifier:
         
         if proxy:
             logger.info(f"使用代理: {proxy}")
-            self.http_client = httpx.Client(timeout=30.0, proxies=proxy)
+            self.http_client = httpx.Client(timeout=30.0, proxy=proxy)
         else:
             logger.info("未配置代理或无可用代理，使用直连")
             self.http_client = httpx.Client(timeout=30.0)
