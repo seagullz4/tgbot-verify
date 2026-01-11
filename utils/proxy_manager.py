@@ -2,10 +2,26 @@
 import logging
 import random
 import os
+import re
 from typing import Optional, List
 from threading import Lock
 
 logger = logging.getLogger(__name__)
+
+
+def mask_proxy_credentials(proxy_url: str) -> str:
+    """遮蔽代理 URL 中的凭据信息
+    
+    Args:
+        proxy_url: 代理 URL
+        
+    Returns:
+        str: 遮蔽凭据后的 URL
+    """
+    # 匹配 socks5://user:pass@host:port 格式
+    pattern = r'(socks5://)[^:]+:[^@]+(@.+)'
+    masked = re.sub(pattern, r'\1***:***\2', proxy_url)
+    return masked
 
 
 class ProxyManager:
@@ -41,8 +57,17 @@ class ProxyManager:
                 logger.info(f"成功加载 {len(self.proxies)} 个代理")
             else:
                 logger.warning(f"代理文件为空: {self.proxy_file_path}")
+        except FileNotFoundError:
+            logger.error(f"代理文件未找到: {self.proxy_file_path}")
+            self.proxies = []
+        except PermissionError:
+            logger.error(f"无权限读取代理文件: {self.proxy_file_path}")
+            self.proxies = []
+        except UnicodeDecodeError:
+            logger.error(f"代理文件编码错误，请确保使用 UTF-8 编码: {self.proxy_file_path}")
+            self.proxies = []
         except Exception as e:
-            logger.error(f"加载代理文件失败: {e}")
+            logger.error(f"加载代理文件时发生未知错误: {e}")
             self.proxies = []
 
     def get_proxy(self) -> Optional[str]:

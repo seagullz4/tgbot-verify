@@ -8,7 +8,7 @@ from typing import Dict, Optional, Tuple
 from . import config
 from .name_generator import NameGenerator, generate_birth_date
 from .img_generator import generate_images, generate_psu_email
-from utils.proxy_manager import get_proxy_manager
+from utils.proxy_manager import get_proxy_manager, mask_proxy_credentials
 
 # 配置日志
 logging.basicConfig(
@@ -33,7 +33,7 @@ class SheerIDVerifier:
         proxy = proxy_manager.get_proxy()
         
         if proxy:
-            logger.info(f"使用代理: {proxy}")
+            logger.info(f"使用代理: {mask_proxy_credentials(proxy)}")
             self.http_client = httpx.Client(timeout=30.0, proxy=proxy)
         else:
             logger.info("未配置代理或无可用代理，使用直连")

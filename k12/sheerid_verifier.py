@@ -10,17 +10,19 @@ try:
     from . import config  # type: ignore
     from .name_generator import NameGenerator, generate_email, generate_birth_date  # type: ignore
     from .img_generator import generate_teacher_pdf, generate_teacher_png  # type: ignore
-    from utils.proxy_manager import get_proxy_manager  # type: ignore
+    from utils.proxy_manager import get_proxy_manager, mask_proxy_credentials  # type: ignore
 except ImportError:
     import config  # type: ignore
     from name_generator import NameGenerator, generate_email, generate_birth_date  # type: ignore
     from img_generator import generate_teacher_pdf, generate_teacher_png  # type: ignore
-    # 在独立脚本模式下，创建一个空的代理管理器
-    class DummyProxyManager:
-        def get_proxy(self):
-            return None
+    # 在独立脚本模式下，提供简单的存根函数
     def get_proxy_manager():
+        class DummyProxyManager:
+            def get_proxy(self):
+                return None
         return DummyProxyManager()
+    def mask_proxy_credentials(proxy):
+        return proxy
 
 # 导入配置常量
 PROGRAM_ID = config.PROGRAM_ID
@@ -57,7 +59,7 @@ class SheerIDVerifier:
         proxy = proxy_manager.get_proxy()
         
         if proxy:
-            logger.info(f"使用代理: {proxy}")
+            logger.info(f"使用代理: {mask_proxy_credentials(proxy)}")
             self.http_client = httpx.Client(timeout=30.0, proxy=proxy)
         else:
             logger.info("未配置代理或无可用代理，使用直连")
