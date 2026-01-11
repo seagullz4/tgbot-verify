@@ -17,11 +17,30 @@ def mask_proxy_credentials(proxy_url: str) -> str:
         
     Returns:
         str: 遮蔽凭据后的 URL
+        
+    Note:
+        此函数假设用户名和密码中不包含 @ 字符（这是标准做法）
+        如果确实需要在凭据中使用特殊字符，应使用 URL 编码
     """
-    # 匹配 socks5://user:pass@host:port 格式
-    pattern = r'(socks5://)[^:]+:[^@]+(@.+)'
-    masked = re.sub(pattern, r'\1***:***\2', proxy_url)
+    # 匹配 socks5://credentials@host:port 格式
+    # 注意：假设凭据中不包含 @ 字符（标准 URL 做法）
+    pattern = r'(socks5://)[^@]+@(.+)'
+    masked = re.sub(pattern, r'\1***:***@\2', proxy_url)
     return masked
+
+
+def validate_proxy_url(proxy_url: str) -> bool:
+    """验证代理 URL 格式是否正确
+    
+    Args:
+        proxy_url: 代理 URL
+        
+    Returns:
+        bool: URL 格式是否有效
+    """
+    # 基本格式验证: socks5://[user:pass@]host:port
+    pattern = r'^socks5://([^:]+:[^@]+@)?[^:]+:\d+$'
+    return bool(re.match(pattern, proxy_url))
 
 
 class ProxyManager:
@@ -51,20 +70,25 @@ class ProxyManager:
         try:
             with open(self.proxy_file_path, 'r', encoding='utf-8') as f:
                 lines = f.readlines()
-                self.proxies = [line.strip() for line in lines if line.strip() and not line.startswith('#')]
+                # 过滤空行和注释，并验证格式
+                valid_proxies = []
+                for line_num, line in enumerate(lines, 1):
+                    line = line.strip()
+                    if not line or line.startswith('#'):
+                        continue
+                    if validate_proxy_url(line):
+                        valid_proxies.append(line)
+                    else:
+                        logger.warning(f"代理文件第 {line_num} 行格式无效，已跳过: {line}")
+                
+                self.proxies = valid_proxies
             
             if self.proxies:
                 logger.info(f"成功加载 {len(self.proxies)} 个代理")
             else:
-                logger.warning(f"代理文件为空: {self.proxy_file_path}")
-        except FileNotFoundError:
-            logger.error(f"代理文件未找到: {self.proxy_file_path}")
-            self.proxies = []
-        except PermissionError:
-            logger.error(f"无权限读取代理文件: {self.proxy_file_path}")
-            self.proxies = []
-        except UnicodeDecodeError:
-            logger.error(f"代理文件编码错误，请确保使用 UTF-8 编码: {self.proxy_file_path}")
+                logger.warning(f"代理文件为空或无有效代理: {self.proxy_file_path}")
+        except (FileNotFoundError, PermissionError, UnicodeDecodeError) as e:
+            logger.error(f"加载代理文件失败: {e}")
             self.proxies = []
         except Exception as e:
             logger.error(f"加载代理文件时发生未知错误: {e}")
