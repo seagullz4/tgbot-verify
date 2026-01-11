@@ -249,6 +249,26 @@ tgbot-verify/
 | `MYSQL_USER` | ✅ | MySQL 用户名 | - |
 | `MYSQL_PASSWORD` | ✅ | MySQL 密码 | - |
 | `MYSQL_DATABASE` | ✅ | 数据库名称 | tgbot_verify |
+| `PROXY_FILE_PATH` | ❌ | SOCKS5 代理文件路径 | - |
+
+### 代理配置
+
+本项目支持使用 SOCKS5 代理进行验证请求。详细配置说明请查看 [PROXY.md](PROXY.md)。
+
+**快速配置：**
+
+1. 创建代理文件 `proxies.txt`（每行一个代理）：
+   ```
+   socks5://username:password@host:port
+   socks5://host:port
+   ```
+
+2. 在 `.env` 中配置代理文件路径：
+   ```env
+   PROXY_FILE_PATH=./proxies.txt
+   ```
+
+3. 重启机器人即可生效
 
 ### 积分配置
 

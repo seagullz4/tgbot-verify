@@ -21,3 +21,6 @@ REGISTER_REWARD = 1  # 注册奖励积分
 
 # 帮助链接
 HELP_NOTION_URL = "https://rhetorical-era-3f3.notion.site/dd78531dbac745af9bbac156b51da9cc"
+
+# 代理配置
+PROXY_FILE_PATH = os.getenv("PROXY_FILE_PATH", "")

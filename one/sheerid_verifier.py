@@ -8,6 +8,7 @@ from typing import Dict, Optional, Tuple
 from . import config
 from .name_generator import NameGenerator, generate_birth_date
 from .img_generator import generate_image, generate_psu_email
+from utils.proxy_manager import get_proxy_manager
 
 # 配置日志
 logging.basicConfig(
@@ -24,7 +25,17 @@ class SheerIDVerifier:
     def __init__(self, verification_id: str):
         self.verification_id = verification_id
         self.device_fingerprint = self._generate_device_fingerprint()
-        self.http_client = httpx.Client(timeout=30.0)
+        
+        # 获取代理配置
+        proxy_manager = get_proxy_manager()
+        proxy = proxy_manager.get_proxy()
+        
+        if proxy:
+            logger.info(f"使用代理: {proxy}")
+            self.http_client = httpx.Client(timeout=30.0, proxies=proxy)
+        else:
+            logger.info("未配置代理或无可用代理，使用直连")
+            self.http_client = httpx.Client(timeout=30.0)
 
     def __del__(self):
         if hasattr(self, "http_client"):
