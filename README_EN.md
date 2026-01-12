@@ -251,6 +251,26 @@ tgbot-verify/
 | `MYSQL_USER` | ✅ | MySQL username | - |
 | `MYSQL_PASSWORD` | ✅ | MySQL password | - |
 | `MYSQL_DATABASE` | ✅ | Database name | tgbot_verify |
+| `PROXY_FILE_PATH` | ❌ | SOCKS5 proxy file path | - |
+
+### Proxy Configuration
+
+This project supports using SOCKS5 proxies for verification requests. For detailed configuration instructions, see [PROXY.md](PROXY.md).
+
+**Quick Setup:**
+
+1. Create a proxy file `proxies.txt` (one proxy per line):
+   ```
+   socks5://username:password@host:port
+   socks5://host:port
+   ```
+
+2. Configure the proxy file path in `.env`:
+   ```env
+   PROXY_FILE_PATH=./proxies.txt
+   ```
+
+3. Restart the bot to apply changes
 
 ### Points Configuration
 

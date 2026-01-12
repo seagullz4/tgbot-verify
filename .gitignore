@@ -50,6 +50,11 @@ logs/
 .env.local
 .env.*.local
 
+# Proxy configuration (contains sensitive data)
+proxies.txt
+proxy.txt
+socks5.txt
+
 # Configuration (with sensitive data)
 config_local.py
 

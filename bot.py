@@ -4,8 +4,9 @@ from functools import partial
 
 from telegram.ext import Application, CommandHandler
 
-from config import BOT_TOKEN
+from config import BOT_TOKEN, PROXY_FILE_PATH
 from database_mysql import Database
+from utils.proxy_manager import init_proxy_manager
 from handlers.user_commands import (
     start_command,
     about_command,
@@ -47,6 +48,9 @@ async def error_handler(update: object, context) -> None:
 
 def main():
     """主函数"""
+    # 初始化代理管理器
+    init_proxy_manager(PROXY_FILE_PATH)
+    
     # 初始化数据库
     db = Database()
 
